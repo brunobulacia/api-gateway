@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'ms_pagos' => [
+        'url' => env('MS_PAGOS_URL', 'http://ms-pagos:3000'),
+    ],
+
+    'ms_ia' => [
+        'url' => env('MS_IA_URL', 'http://ms-ia:8000'),
+    ],
+
 ];

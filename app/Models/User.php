@@ -10,7 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'role', 'family_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements JWTSubject
 {
@@ -22,9 +22,16 @@ class User extends Authenticatable implements JWTSubject
         return $this->getKey();
     }
 
+    protected $attributes = ['role' => 'PARENT'];
+
     public function getJWTCustomClaims(): array
     {
-        return [];
+        return [
+            'role'     => $this->role ?? 'PARENT',
+            'name'     => $this->name,
+            'email'    => $this->email,
+            'familyId' => $this->family_id,
+        ];
     }
 
     protected function casts(): array

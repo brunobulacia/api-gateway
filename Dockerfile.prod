@@ -1,0 +1,48 @@
+# ────────────────────────────────────────────────────────────────
+# api-gateway — Dockerfile de producción
+# Optimizaciones vs dev: config:cache, route:cache, views:cache
+# ────────────────────────────────────────────────────────────────
+FROM php:8.4-cli-alpine AS base
+
+RUN apk add --no-cache \
+    unzip \
+    curl \
+    oniguruma-dev \
+    libzip-dev \
+    sqlite-dev \
+    && docker-php-ext-install \
+    pdo \
+    pdo_sqlite \
+    mbstring \
+    bcmath \
+    zip \
+    && rm -rf /var/cache/apk/*
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www
+
+# Instalar dependencias primero (layer cache)
+COPY composer.json composer.lock ./
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --no-autoloader \
+    --prefer-dist \
+    --ignore-platform-req=ext-sockets \
+    --optimize-autoloader
+
+COPY . .
+
+RUN cp .env.docker .env
+
+RUN composer dump-autoload --optimize --classmap-authoritative \
+    && php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache \
+    && php artisan storage:link --quiet || true \
+    && chmod -R 775 storage bootstrap/cache
+
+EXPOSE 80
+
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]

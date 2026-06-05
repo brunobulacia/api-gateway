@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 // Auth (public)
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
-    Route::post('login',    [AuthController::class, 'login']);
+    Route::post('login', [AuthController::class, 'login']);
 });
 
 // Protected routes
@@ -24,13 +24,16 @@ Route::middleware('jwt')->group(function () {
     // ms-ia
     Route::prefix('ia')->group(function () {
         Route::post('families/{familyId}/risk-score', [IaController::class, 'riskScore']);
+        Route::get('families/{familyId}/risk-score/history', [IaController::class, 'riskScoreHistory']);
         Route::post('families/{familyId}/cluster', [IaController::class, 'cluster']);
+        Route::get('families/{familyId}/cluster', [IaController::class, 'getCluster']);
         Route::post('payment-events', [IaController::class, 'paymentEvent']);
         Route::post('ocr', [IaController::class, 'ocr']);
     });
 
     // ms-pagos
     Route::prefix('pagos')->group(function () {
+        Route::get('payments', [PagosController::class, 'getAllPayments']);
         Route::post('payments', [PagosController::class, 'createPayment']);
         Route::get('families/{familyId}/balance', [PagosController::class, 'getBalance']);
         Route::post('webhooks', [PagosController::class, 'processWebhook']);
