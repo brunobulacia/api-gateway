@@ -1,16 +1,20 @@
 <?php
 
 use App\Http\Controllers\AcademicoController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\IaController;
 use App\Http\Controllers\PagosController;
 use Illuminate\Support\Facades\Route;
 
-// Auth (public)
+// Auth (public — solo login, el registro lo hace el admin)
 Route::prefix('auth')->group(function () {
-    Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
 });
+
+// Visualizar documentos (auth por query param ?token=)
+Route::get('documents/view', [DocumentController::class, 'view']);
 
 // Protected routes
 Route::middleware('jwt')->group(function () {
@@ -44,5 +48,15 @@ Route::middleware('jwt')->group(function () {
         Route::post('students/enroll', [AcademicoController::class, 'enrollStudent']);
         Route::get('students/{studentId}', [AcademicoController::class, 'getStudent']);
         Route::patch('students/{studentId}/attendance', [AcademicoController::class, 'updateAttendance']);
+    });
+
+    // documentos
+    Route::post('documents/upload', [DocumentController::class, 'upload']);
+
+    // admin — solo ADMIN
+    Route::middleware('admin')->prefix('admin')->group(function () {
+        Route::get('users',                [AdminController::class, 'listUsers']);
+        Route::post('users',               [AdminController::class, 'createUser']);
+        Route::patch('users/{id}/family',  [AdminController::class, 'assignFamily']);
     });
 });

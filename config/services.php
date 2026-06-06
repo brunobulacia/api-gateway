@@ -43,4 +43,8 @@ return [
         'url' => env('MS_IA_URL', 'http://ms-ia:8000'),
     ],
 
+    'ms_erp' => [
+        'url' => env('MS_ERP_URL', 'http://ms-academico:8080'),
+    ],
+
 ];
